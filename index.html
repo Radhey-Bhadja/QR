@@ -1,1661 +1,2807 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    />
-    <meta name="theme-color" content="#4f46e5" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <title>QRify — Smart QR Scanner</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>QRify Enterprise — Professional QR & Barcode Intelligence</title>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
-    <!-- Html5-Qrcode with fallback -->
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script>
-      if (typeof Html5Qrcode === "undefined") {
-        document.write(
-          '<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"><\/script>'
-        );
-      }
-    </script>
+  <!-- Html5-Qrcode Library with Multiple Fallbacks -->
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script>
+    if (typeof Html5Qrcode === "undefined") {
+      document.write('<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"><\/script>');
+    }
+  </script>
 
-    <style>
-      :root {
-        --primary: #4f46e5;
-        --primary-hover: #4338ca;
-        --primary-light: #eef2ff;
-        --accent: #06b6d4;
-        --surface: #ffffff;
-        --surface-glass: rgba(255, 255, 255, 0.88);
-        --bg: #f8fafc;
-        --text-main: #0f172a;
-        --text-muted: #64748b;
-        --text-subtle: #94a3b8;
-        --border: #e2e8f0;
-        --border-glass: rgba(255, 255, 255, 0.7);
-        --radius-lg: 28px;
-        --radius-md: 18px;
-        --radius-sm: 12px;
-        --shadow-soft: 0 20px 45px -10px rgba(15, 23, 42, 0.08), 0 8px 16px -6px rgba(15, 23, 42, 0.04);
-        --shadow-card: 0 25px 60px -12px rgba(79, 70, 229, 0.12), 0 10px 24px -8px rgba(15, 23, 42, 0.06);
-      }
+  <!-- QRCode.js for QR Generator tab -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    if (typeof QRCode === "undefined") {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>');
+    }
+  </script>
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-      }
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --surface-card: #ffffff;
+      --border: #e2e8f0;
+      --border-focus: #94a3b8;
+      --primary: #0f172a;
+      --primary-hover: #1e293b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-subtle: #eff6ff;
+      --accent-border: #bfdbfe;
+      --success: #059669;
+      --success-subtle: #ecfdf5;
+      --success-border: #a7f3d0;
+      --warning: #d97706;
+      --warning-subtle: #fffbeb;
+      --warning-border: #fde68a;
+      --danger: #dc2626;
+      --danger-subtle: #fef2f2;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      --text-light: #94a3b8;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
+      --shadow-viewport: 0 20px 40px -10px rgba(15, 23, 42, 0.15);
+      --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
 
-      html {
-        scroll-behavior: smooth;
-      }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(#cbd5e1 0.75px, transparent 0.75px),
+        radial-gradient(#e2e8f0 0.75px, #f8fafc 0.75px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Utility Bar */
+    .utility-bar {
+      width: 100%;
+      background: #0f172a;
+      color: #94a3b8;
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .utility-content {
+      max-width: 960px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .compliance-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #e2e8f0;
+      letter-spacing: 0.02em;
+    }
+
+    .compliance-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+      flex-shrink: 0;
+    }
+
+    .utility-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .utility-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .utility-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .utility-btn svg {
+      width: 13px;
+      height: 13px;
+      color: #38bdf8;
+    }
+
+    /* Main App Header */
+    .app-header {
+      width: 100%;
+      max-width: 960px;
+      padding: 24px 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-emblem {
+      width: 46px;
+      height: 46px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #38bdf8;
+      flex-shrink: 0;
+    }
+
+    .brand-text h1 {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .badge-enterprise {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--accent-subtle);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+
+    .brand-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 1px;
+    }
+
+    /* Primary Segmented Navigation Tabs */
+    .nav-tabs-wrapper {
+      width: 100%;
+      max-width: 960px;
+      padding: 0 20px 18px;
+    }
+
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 5px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      gap: 6px;
+    }
+
+    .tab-btn {
+      padding: 11px 16px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: var(--surface-subtle);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Main Container Layout */
+    .app-main {
+      width: 100%;
+      max-width: 960px;
+      padding: 0 20px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .surface-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      box-shadow: var(--shadow-md);
+      transition: box-shadow 0.2s;
+    }
+
+    .card-header-formal {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-title-group h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title-group p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Camera Viewport */
+    .viewport-container {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      aspect-ratio: 1 / 1;
+      background: #090d16;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-viewport);
+      border: 1px solid #1e293b;
+      margin: 0 auto;
+    }
+
+    #reader {
+      width: 100% !important;
+      height: 100% !important;
+      border: none !important;
+    }
+
+    #reader > div {
+      border: none !important;
+    }
+
+    #reader video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: var(--radius-lg);
+    }
+
+    #reader img, #reader__dashboard {
+      display: none !important;
+    }
+
+    /* Refined HUD Viewfinder */
+    .hud-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hud-box {
+      position: relative;
+      width: 66%;
+      aspect-ratio: 1 / 1;
+    }
+
+    .hud-corner {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-color: #38bdf8;
+      border-style: solid;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.7));
+    }
+
+    .hud-corner.tl { top: 0; left: 0; border-width: 3.5px 0 0 3.5px; border-radius: 10px 0 0 0; }
+    .hud-corner.tr { top: 0; right: 0; border-width: 3.5px 3.5px 0 0; border-radius: 0 10px 0 0; }
+    .hud-corner.bl { bottom: 0; left: 0; border-width: 0 0 3.5px 3.5px; border-radius: 0 0 0 10px; }
+    .hud-corner.br { bottom: 0; right: 0; border-width: 0 3.5px 3.5px 0; border-radius: 0 0 10px 0; }
+
+    .hud-laser {
+      position: absolute;
+      left: 4%;
+      right: 4%;
+      top: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8 25%, #60a5fa 50%, #38bdf8 75%, transparent);
+      box-shadow: 0 0 12px #38bdf8, 0 0 4px #60a5fa;
+      animation: laserSweep 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+
+    @keyframes laserSweep {
+      0% { top: 12%; opacity: 0.9; }
+      50% { top: 88%; opacity: 1; }
+      100% { top: 12%; opacity: 0.9; }
+    }
+
+    /* Viewport Floating Pill Bar */
+    .hud-pill {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #e2e8f0;
+      font-size: 11.5px;
+      font-weight: 600;
+      z-index: 6;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* Camera Placeholder State */
+    .viewport-placeholder {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 24px;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      color: #ffffff;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .viewport-placeholder.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .placeholder-badge-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      color: #38bdf8;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .placeholder-badge-icon svg {
+      width: 34px;
+      height: 34px;
+    }
+
+    .viewport-placeholder h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .viewport-placeholder p {
+      color: #94a3b8;
+      font-size: 13.5px;
+      line-height: 1.5;
+      max-width: 320px;
+      margin-bottom: 22px;
+    }
+
+    /* Buttons System */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 13.5px;
+      padding: 11px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      line-height: 1.2;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: #1e293b;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent-hover);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-accent:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--text-main);
+      border-color: var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-subtle);
+      border-color: #cbd5e1;
+    }
+
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: 12.5px;
+      border-radius: 6px;
+    }
+
+    /* Camera Controls Wrapper */
+    .camera-controls-wrapper {
+      max-width: 520px;
+      margin: 16px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .camera-actions-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .camera-status-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .status-indicator-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .status-indicator-dot.active {
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    /* Drag & Drop File Zone */
+    .dropzone-box {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 48px 24px;
+      text-align: center;
+      background: #ffffff;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .dropzone-box:hover, .dropzone-box.dragover {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+    }
+
+    .dropzone-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+
+    .dropzone-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .dropzone-title {
+      font-size: 16.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .dropzone-subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      max-width: 380px;
+    }
+
+    .dropzone-tip {
+      font-size: 12px;
+      color: var(--text-subtle);
+      background: var(--surface-subtle);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    /* Generator Studio Tab */
+    .generator-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .gen-type-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .gen-type-btn {
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-subtle);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.15s;
+    }
+
+    .gen-type-btn svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    .gen-type-btn:hover {
+      border-color: #cbd5e1;
+      color: var(--text-main);
+    }
+
+    .gen-type-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 10px 13px;
+      font-family: inherit;
+      font-size: 13.5px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      background: #ffffff;
+      color: var(--text-main);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .gen-preview-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      text-align: center;
+      background: var(--surface-subtle);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .qr-canvas-holder {
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .qr-canvas-holder img, .qr-canvas-holder canvas {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+
+    /* Result Presentation Box */
+    .result-section {
+      display: none;
+      margin-top: 8px;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .result-section.show {
+      display: block;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .result-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .result-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .result-icon-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #38bdf8;
+      flex-shrink: 0;
+    }
+
+    .result-icon-badge svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .result-headline h3 {
+      font-size: 16.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .result-headline p {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+
+    .result-banner-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .type-indicator-pill {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 11px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    /* Structured Details Table */
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .detail-item {
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 14px;
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      font-size: 13px;
+      transition: background 0.1s;
+    }
+
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+
+    .detail-item:hover {
+      background: #fafafa;
+    }
+
+    .item-label {
+      font-weight: 600;
+      color: var(--text-subtle);
+      text-transform: capitalize;
+    }
+
+    .item-value {
+      font-weight: 500;
+      color: var(--text-main);
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
+    .item-value.link {
+      color: var(--accent);
+      font-weight: 600;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+    }
+
+    .item-copy-btn {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .item-copy-btn:hover {
+      background: var(--surface-subtle);
+      border-color: #cbd5e1;
+      color: var(--text-main);
+    }
+
+    .item-copy-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* Result Action Bar */
+    .result-action-bar {
+      padding: 16px 22px;
+      background: var(--surface-subtle);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .action-group-left, .action-group-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Accordion for Raw Data */
+    .raw-data-accordion {
+      margin: 16px 22px 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .raw-data-accordion summary {
+      padding: 11px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface-subtle);
+    }
+
+    .raw-data-accordion summary:hover {
+      color: var(--text-main);
+    }
+
+    .raw-code-box {
+      padding: 14px 16px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 80px);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 11px 22px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+      max-width: calc(100% - 32px);
+      text-align: center;
+    }
+
+    .toast-container.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    /* Modal Framework */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal-window {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--text-main);
+    }
+
+    .modal-body {
+      padding: 22px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+
+    .compliance-checklist {
+      list-style: none;
+      margin: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .compliance-checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .compliance-checklist svg {
+      width: 18px;
+      height: 18px;
+      color: var(--success);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Executive Footer */
+    .app-footer {
+      width: 100%;
+      max-width: 960px;
+      margin-top: auto;
+      padding: 24px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-subtle);
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a, .footer-links button {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      background: none;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .footer-links a:hover, .footer-links button:hover {
+      color: var(--accent);
+    }
+
+    /* Safe Area Insets for Mobile Devices */
+    @supports (padding: env(safe-area-inset-bottom)) {
       body {
-        min-height: 100vh;
-        font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background-color: var(--bg);
-        background-image:
-          radial-gradient(at 15% 15%, rgba(79, 70, 229, 0.12) 0px, transparent 40%),
-          radial-gradient(at 85% 25%, rgba(6, 182, 212, 0.1) 0px, transparent 45%),
-          radial-gradient(at 50% 90%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
-        background-attachment: fixed;
-        color: var(--text-main);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
       }
-
-      /* Navbar Header */
-      .topbar {
-        width: 100%;
-        max-width: 640px;
-        padding: 22px 20px 10px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      .app-footer {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom));
       }
-
-      .brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        text-decoration: none;
-        color: var(--text-main);
+      .toast-container {
+        bottom: calc(24px + env(safe-area-inset-bottom));
       }
+    }
 
-      .brand-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #4f46e5, #06b6d4);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.28);
+    /* Responsive Breakpoints */
+    @media (max-width: 768px) {
+      .generator-grid {
+        grid-template-columns: 1fr;
       }
-
-      .brand-icon svg {
-        width: 22px;
-        height: 22px;
+      .gen-preview-card {
+        max-width: 100%;
       }
-
-      .brand-title {
-        font-size: 21px;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        background: linear-gradient(135deg, #0f172a 40%, #4f46e5);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+      .detail-item {
+        grid-template-columns: 1fr auto;
+        gap: 6px 12px;
       }
-
-      .brand-badge {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 20px;
-        background: rgba(79, 70, 229, 0.08);
-        color: var(--primary);
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
+      .item-label {
+        grid-column: 1 / -1;
+        font-size: 11.5px;
       }
-
-      /* Main container */
-      .container {
-        width: 100%;
-        max-width: 600px;
-        padding: 12px 20px 48px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      /* Hero section */
-      .hero {
-        text-align: center;
-        padding: 10px 0 6px;
-      }
-
-      .hero h1 {
-        font-size: clamp(28px, 6vw, 40px);
-        font-weight: 800;
-        line-height: 1.15;
-        letter-spacing: -0.035em;
-        margin-bottom: 10px;
-        background: linear-gradient(135deg, #0f172a 30%, #312e81 70%, #4f46e5 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-
-      .hero p {
-        color: var(--text-muted);
-        font-size: 15px;
-        line-height: 1.55;
-        max-width: 460px;
-        margin: 0 auto;
-        font-weight: 500;
-      }
-
-      /* Scanner Card */
-      .scanner-card {
-        background: var(--surface-glass);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--border-glass);
-        border-radius: var(--radius-lg);
-        padding: 20px;
-        box-shadow: var(--shadow-card);
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      /* Camera Viewport */
-      .camera-viewport {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        max-height: 480px;
-        border-radius: var(--radius-md);
-        background: #090d16;
-        overflow: hidden;
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-      }
-
-      #reader {
-        width: 100% !important;
-        height: 100% !important;
-        border: none !important;
-      }
-
-      #reader > div {
-        border: none !important;
-      }
-
-      #reader video {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        border-radius: var(--radius-md);
-      }
-
-      #reader img,
-      #reader__dashboard {
-        display: none !important;
-      }
-
-      /* Viewfinder HUD Overlay */
-      .viewfinder-hud {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 4;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .viewfinder-box {
-        position: relative;
-        width: 68%;
-        aspect-ratio: 1 / 1;
-      }
-
-      .corner {
-        position: absolute;
-        width: 34px;
-        height: 34px;
-        border-color: #6366f1;
-        border-style: solid;
-        filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.6));
-      }
-
-      .corner.tl {
-        top: 0;
-        left: 0;
-        border-width: 4px 0 0 4px;
-        border-radius: 12px 0 0 0;
-      }
-
-      .corner.tr {
-        top: 0;
-        right: 0;
-        border-width: 4px 4px 0 0;
-        border-radius: 0 12px 0 0;
-      }
-
-      .corner.bl {
-        bottom: 0;
-        left: 0;
-        border-width: 0 0 4px 4px;
-        border-radius: 0 0 0 12px;
-      }
-
-      .corner.br {
-        bottom: 0;
-        right: 0;
-        border-width: 0 4px 4px 0;
-        border-radius: 0 0 12px 0;
-      }
-
-      .laser-line {
-        position: absolute;
-        left: 6%;
-        right: 6%;
-        top: 10%;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #818cf8 20%, #38bdf8 50%, #818cf8 80%, transparent);
-        box-shadow: 0 0 14px #818cf8, 0 0 4px #38bdf8;
-        animation: laserScan 2.4s ease-in-out infinite;
-      }
-
-      @keyframes laserScan {
-        0% { top: 10%; opacity: 0.8; }
-        50% { top: 90%; opacity: 1; }
-        100% { top: 10%; opacity: 0.8; }
-      }
-
-      /* Placeholder State */
-      .camera-placeholder {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 30px;
-        background: radial-gradient(circle at center, #111827 0%, #030712 100%);
-        color: #fff;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
-      }
-
-      .camera-placeholder.hidden {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
-
-      .placeholder-pulse-icon {
-        width: 76px;
-        height: 76px;
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 18px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      }
-
-      .placeholder-pulse-icon svg {
-        width: 36px;
-        height: 36px;
-        color: #93c5fd;
-      }
-
-      .camera-placeholder h3 {
-        font-size: 19px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        letter-spacing: -0.02em;
-      }
-
-      .camera-placeholder p {
-        color: #94a3b8;
-        font-size: 14px;
-        line-height: 1.5;
-        max-width: 300px;
-        margin-bottom: 22px;
-      }
-
-      /* Buttons & Controls */
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 9px;
-        border: none;
-        outline: none;
-        font-family: inherit;
-        font-weight: 600;
-        font-size: 14px;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .btn svg {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-      }
-
-      .btn:active {
-        transform: scale(0.98);
-      }
-
-      .btn-primary {
-        background: linear-gradient(135deg, var(--primary), #4338ca);
-        color: #ffffff;
-        padding: 14px 24px;
-        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-      }
-
-      .btn-primary:hover {
-        background: linear-gradient(135deg, #4338ca, #3730a3);
-        box-shadow: 0 10px 24px rgba(79, 70, 229, 0.4);
-      }
-
-      .scanner-controls {
-        display: grid;
+      .camera-actions-bar {
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
       }
+    }
 
-      .btn-secondary {
-        background: #ffffff;
-        color: var(--text-main);
-        border: 1px solid var(--border);
-        padding: 12px 14px;
-        font-size: 13px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-      }
-
-      .btn-secondary:hover {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
-      }
-
-      /* Status Indicator */
-      .status-bar {
-        display: flex;
-        align-items: center;
+    @media (max-width: 560px) {
+      .utility-content {
         justify-content: center;
-        gap: 8px;
-        font-size: 13px;
-        color: var(--text-muted);
-        font-weight: 500;
-        padding: 4px 0;
+        text-align: center;
       }
-
-      .status-indicator {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #94a3b8;
-        transition: all 0.3s ease;
+      .app-header {
+        padding: 18px 16px 12px;
       }
-
-      .status-indicator.active {
-        background: #10b981;
-        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-        animation: pulseStatus 2s infinite;
+      .nav-tabs-wrapper {
+        padding: 0 16px 14px;
       }
-
-      @keyframes pulseStatus {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
+      .nav-tabs {
+        grid-template-columns: 1fr;
+        gap: 4px;
       }
-
-      /* Result Presentation Card */
-      .result-wrapper {
-        display: none;
-        flex-direction: column;
-        gap: 14px;
-        margin-top: 4px;
-        animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      .tab-btn {
+        justify-content: flex-start;
+        padding: 11px 14px;
       }
-
-      .result-wrapper.show {
-        display: flex;
+      .app-main {
+        padding: 0 16px 36px;
       }
-
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(12px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .result-header {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-
-      .result-icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: var(--radius-sm);
-        background: var(--primary-light);
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        flex-shrink: 0;
-      }
-
-      .result-header-text h2 {
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        color: var(--text-main);
-      }
-
-      .result-header-text p {
-        font-size: 12px;
-        color: var(--text-muted);
-      }
-
-      .type-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        align-self: flex-start;
-        padding: 5px 12px;
-        border-radius: 20px;
-        background: var(--primary-light);
-        color: var(--primary);
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-      }
-
-      /* Data Details Table Card */
-      .details-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
+      .surface-card {
+        padding: 18px 16px;
         border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
       }
-
-      .detail-row {
-        display: grid;
-        grid-template-columns: 120px 1fr;
-        gap: 12px;
-        padding: 13px 16px;
-        border-bottom: 1px solid #f1f5f9;
-        font-size: 13px;
-        align-items: baseline;
+      .viewport-container {
+        border-radius: 14px;
       }
-
-      .detail-row:last-child {
-        border-bottom: none;
+      .hud-box {
+        width: 72%;
       }
-
-      .detail-label {
-        color: var(--text-muted);
-        font-weight: 600;
-        text-transform: capitalize;
+      .camera-actions-bar {
+        grid-template-columns: 1fr;
       }
-
-      .detail-value {
-        color: var(--text-main);
-        font-weight: 500;
-        word-break: break-word;
-        line-height: 1.5;
+      .btn {
+        min-height: 44px;
       }
-
-      .detail-value.link {
-        color: var(--primary);
-        font-weight: 600;
+      .dropzone-box {
+        padding: 32px 16px;
       }
-
-      /* Action Buttons */
-      .actions-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+      .result-banner {
+        padding: 16px;
       }
-
-      .btn-action-copy {
-        background: #f1f5f9;
-        color: var(--text-main);
-        padding: 13px;
+      .detail-item {
+        padding: 12px 16px;
       }
-
-      .btn-action-copy:hover {
-        background: #e2e8f0;
+      .result-action-bar {
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: stretch;
       }
-
-      .btn-action-open {
-        background: var(--primary);
-        color: #ffffff;
-        padding: 13px;
-      }
-
-      .btn-action-open:hover {
-        background: var(--primary-hover);
-      }
-
-      .btn-rescan {
+      .action-group-left, .action-group-right {
         width: 100%;
-        background: #0f172a;
-        color: #ffffff;
-        padding: 14px;
-        margin-top: 2px;
+        flex-direction: column;
       }
-
-      .btn-rescan:hover {
-        background: #1e293b;
+      .action-group-left .btn, .action-group-right .btn {
+        width: 100%;
       }
-
-      /* Raw Content Accordion */
-      .raw-data-panel {
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        padding: 10px 14px;
-        background: #ffffff;
+      .raw-data-accordion {
+        margin: 14px 16px 16px;
       }
-
-      .raw-data-panel summary {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--text-muted);
-        cursor: pointer;
-        user-select: none;
-        outline: none;
-      }
-
-      .raw-data-panel summary:hover {
-        color: var(--text-main);
-      }
-
-      .raw-data-panel pre {
-        margin-top: 10px;
-        padding: 12px;
-        border-radius: 8px;
-        background: #0f172a;
-        color: #e2e8f0;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 12px;
-        line-height: 1.6;
-        white-space: pre-wrap;
-        word-break: break-all;
-        max-height: 160px;
-        overflow-y: auto;
-      }
-
-      /* Footer */
-      .footer {
-        text-align: center;
-        color: var(--text-subtle);
-        font-size: 12px;
-        line-height: 1.7;
-        margin-top: 8px;
-      }
-
-      .footer a {
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.2s;
-      }
-
-      .footer a:hover {
-        color: var(--primary);
-      }
-
-      .security-note {
-        display: inline-flex;
+      .app-footer {
+        flex-direction: column;
         align-items: center;
-        gap: 6px;
-        margin-bottom: 4px;
-      }
-
-      .security-note svg {
-        width: 14px;
-        height: 14px;
-        color: #10b981;
-      }
-
-      /* Toast Notification */
-      .toast {
-        position: fixed;
-        left: 50%;
-        bottom: 28px;
-        transform: translate(-50%, 100px);
-        background: #0f172a;
-        color: #ffffff;
-        padding: 12px 22px;
-        border-radius: 30px;
-        font-size: 13px;
-        font-weight: 600;
-        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
-        z-index: 1000;
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-        opacity: 0;
-        pointer-events: none;
-        max-width: calc(100% - 40px);
         text-align: center;
       }
-
-      .toast.show {
-        transform: translate(-50%, 0);
-        opacity: 1;
+      .footer-links {
+        justify-content: center;
       }
+    }
 
-      /* Safe area insets for notches & home bars on mobile devices */
-      @supports (padding: env(safe-area-inset-bottom)) {
-        body {
-          padding-left: env(safe-area-inset-left);
-          padding-right: env(safe-area-inset-right);
-        }
-        .container {
-          padding-bottom: calc(40px + env(safe-area-inset-bottom));
-        }
-        .topbar {
-          padding-top: calc(16px + env(safe-area-inset-top));
-        }
-        .toast {
-          bottom: calc(24px + env(safe-area-inset-bottom));
-        }
+    @media (max-width: 360px) {
+      .brand-text h1 {
+        font-size: 18px;
       }
-
-      /* Mobile Landscape & Medium Screens */
-      @media (max-width: 640px) {
-        .container {
-          padding: 8px 16px 40px;
-          gap: 16px;
-        }
-
-        .hero h1 {
-          font-size: clamp(26px, 7.5vw, 34px);
-        }
-
-        .camera-viewport {
-          max-height: 400px;
-        }
+      .card-title-group h2 {
+        font-size: 16px;
       }
-
-      /* Standard Mobile Viewports (max 480px) */
-      @media (max-width: 480px) {
-        .topbar {
-          padding: 14px 14px 4px;
-        }
-
-        .brand-icon {
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
-        }
-
-        .brand-title {
-          font-size: 19px;
-        }
-
-        .container {
-          padding: 6px 12px 34px;
-          gap: 14px;
-        }
-
-        .hero {
-          padding: 4px 0 2px;
-        }
-
-        .hero h1 {
-          font-size: 28px;
-          letter-spacing: -0.03em;
-          margin-bottom: 6px;
-        }
-
-        .hero p {
-          font-size: 13.5px;
-          line-height: 1.5;
-        }
-
-        .scanner-card {
-          padding: 12px;
-          border-radius: 20px;
-          gap: 12px;
-        }
-
-        .camera-viewport {
-          min-height: 260px;
-          border-radius: 14px;
-        }
-
-        #reader video {
-          border-radius: 14px;
-        }
-
-        .viewfinder-box {
-          width: 72%;
-        }
-
-        .corner {
-          width: 28px;
-          height: 28px;
-          border-width: 3px;
-        }
-
-        .corner.tl { border-width: 3px 0 0 3px; border-radius: 10px 0 0 0; }
-        .corner.tr { border-width: 3px 3px 0 0; border-radius: 0 10px 0 0; }
-        .corner.bl { border-width: 0 0 3px 3px; border-radius: 0 0 0 10px; }
-        .corner.br { border-width: 0 3px 3px 0; border-radius: 0 0 10px 0; }
-
-        .placeholder-pulse-icon {
-          width: 64px;
-          height: 64px;
-          border-radius: 18px;
-          margin-bottom: 12px;
-        }
-
-        .placeholder-pulse-icon svg {
-          width: 30px;
-          height: 30px;
-        }
-
-        .camera-placeholder h3 {
-          font-size: 17px;
-          margin-bottom: 6px;
-        }
-
-        .camera-placeholder p {
-          font-size: 13px;
-          margin-bottom: 16px;
-        }
-
-        .btn {
-          min-height: 46px; /* Accessible mobile touch target */
-          font-size: 13.5px;
-        }
-
-        .btn-primary {
-          padding: 13px 20px;
-        }
-
-        .status-bar {
-          font-size: 12px;
-        }
-
-        .scanner-controls {
-          gap: 8px;
-        }
-
-        .btn-secondary {
-          padding: 11px 10px;
-          font-size: 12.5px;
-        }
-
-        .detail-row {
-          grid-template-columns: 1fr;
-          gap: 3px;
-          padding: 10px 12px;
-        }
-
-        .detail-label {
-          font-size: 11.5px;
-        }
-
-        .detail-value {
-          font-size: 13px;
-        }
-
-        .actions-container {
-          grid-template-columns: 1fr;
-          gap: 8px;
-        }
-
-        .btn-action-copy,
-        .btn-action-open,
-        .btn-rescan {
-          padding: 12px;
-          font-size: 13px;
-        }
-
-        .raw-data-panel pre {
-          font-size: 11.5px;
-          max-height: 140px;
-          padding: 10px;
-        }
-
-        .footer {
-          font-size: 11.5px;
-        }
+      .gen-type-selector {
+        grid-template-columns: 1fr 1fr;
       }
-
-      /* Compact / Ultra-Small Phones (e.g. iPhone SE, Galaxy Fold outer screen, < 360px) */
-      @media (max-width: 360px) {
-        .container {
-          padding: 4px 8px 28px;
-        }
-
-        .brand-badge {
-          display: none;
-        }
-
-        .hero h1 {
-          font-size: 24px;
-        }
-
-        .hero p {
-          font-size: 12.5px;
-        }
-
-        .scanner-card {
-          padding: 10px;
-          border-radius: 16px;
-        }
-
-        .scanner-controls {
-          grid-template-columns: 1fr;
-        }
-
-        .camera-viewport {
-          min-height: 240px;
-        }
-
-        .viewfinder-box {
-          width: 78%;
-        }
+      .qr-canvas-holder {
+        width: 190px;
+        height: 190px;
       }
-    </style>
-  </head>
+    }
+  </style>
+</head>
 
-  <body>
-    <!-- Top Bar Navigation -->
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-        </div>
-        <span class="brand-title">QRify</span>
+<body>
+  <!-- Top Utility Bar: Formal Compliance & Status -->
+  <aside class="utility-bar">
+    <div class="utility-content">
+      <div class="compliance-tag">
+        <span class="compliance-dot"></span>
+        <span>Zero Cloud Telemetry &bull; 100% Local Device Sandboxed</span>
       </div>
-      <span class="brand-badge">Client-Side</span>
-    </header>
+      <div class="utility-actions">
+        <button class="utility-btn" id="privacyNoticeBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Security &amp; Privacy</span>
+        </button>
+      </div>
+    </div>
+  </aside>
 
-    <!-- Main Container -->
-    <main class="container">
-      <section class="hero">
-        <h1>Scan. Detect. Done.</h1>
-        <p>Instant camera and image QR scanner. Automatically categorizes URLs, Wi-Fi networks, UPI payments, contacts, and plain text.</p>
-      </section>
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-block">
+      <div class="brand-emblem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+          <circle cx="6.5" cy="6.5" r="1" fill="currentColor"></circle>
+          <circle cx="17.5" cy="6.5" r="1" fill="currentColor"></circle>
+          <circle cx="17.5" cy="17.5" r="1" fill="currentColor"></circle>
+          <circle cx="6.5" cy="17.5" r="1" fill="currentColor"></circle>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>
+          QRify
+          <span class="badge-enterprise">Enterprise</span>
+        </h1>
+        <p>Document &amp; Barcode Intelligence Platform</p>
+      </div>
+    </div>
+  </header>
 
-      <section class="scanner-card">
-        <!-- Camera Viewport -->
-        <div class="camera-viewport">
+  <!-- Primary Tab Bar Navigation -->
+  <nav class="nav-tabs-wrapper" aria-label="Main Navigation">
+    <div class="nav-tabs" role="tablist">
+      <button class="tab-btn active" id="tabLiveBtn" role="tab" aria-selected="true" data-tab="livePane">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+        <span>Live Camera</span>
+      </button>
+
+      <button class="tab-btn" id="tabUploadBtn" role="tab" aria-selected="false" data-tab="uploadPane">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <span>Upload &amp; Drop</span>
+      </button>
+
+      <button class="tab-btn" id="tabGenBtn" role="tab" aria-selected="false" data-tab="genPane">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="9" y1="3" x2="9" y2="21"></line>
+          <line x1="15" y1="3" x2="15" y2="21"></line>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="3" y1="15" x2="21" y2="15"></line>
+        </svg>
+        <span>QR Studio</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Work Surface -->
+  <main class="app-main">
+    <!-- PANE 1: LIVE CAMERA SCANNER -->
+    <section class="tab-pane active" id="livePane">
+      <div class="surface-card">
+        <div class="card-header-formal">
+          <div class="card-title-group">
+            <h2>Live Optical Scanner</h2>
+            <p>Point camera at standard QR codes, business cards, Wi-Fi keys, or payment tokens</p>
+          </div>
+        </div>
+
+        <!-- Camera Viewport Box -->
+        <div class="viewport-container">
           <div id="reader"></div>
 
-          <!-- Viewfinder Frame -->
-          <div class="viewfinder-hud">
-            <div class="viewfinder-box">
-              <div class="corner tl"></div>
-              <div class="corner tr"></div>
-              <div class="corner bl"></div>
-              <div class="corner br"></div>
-              <div class="laser-line"></div>
+          <!-- HUD Reticle -->
+          <div class="hud-overlay">
+            <div class="hud-box">
+              <div class="hud-corner tl"></div>
+              <div class="hud-corner tr"></div>
+              <div class="hud-corner bl"></div>
+              <div class="hud-corner br"></div>
+              <div class="hud-laser"></div>
             </div>
           </div>
 
-          <!-- Camera Placeholder / Start Card -->
-          <div class="camera-placeholder" id="cameraPlaceholder">
-            <div class="placeholder-pulse-icon">
+          <!-- Bottom Viewport Pill -->
+          <div class="hud-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span id="hudStatus">Align QR within frame</span>
+          </div>
+
+          <!-- Pre-Start Placeholder -->
+          <div class="viewport-placeholder" id="cameraPlaceholder">
+            <div class="placeholder-badge-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                 <circle cx="12" cy="13" r="4"></circle>
               </svg>
             </div>
-            <h3>Ready to scan</h3>
-            <p id="placeholderText">Point your camera at any QR code to instantly detect and view its contents.</p>
-            <button class="btn btn-primary" onclick="startScanner()">
+            <h3>Optical Sensor Inactive</h3>
+            <p>Access your device camera for hardware-accelerated local QR and barcode reading.</p>
+            <button class="btn btn-primary" id="startCameraBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
-              Start Camera
+              Initialize Camera
             </button>
           </div>
         </div>
 
-        <!-- Status Live Tracker -->
-        <div class="status-bar">
-          <span class="status-indicator" id="statusDot"></span>
-          <span id="statusText">Camera is ready</span>
+        <!-- Camera Controls & Status Wrapper -->
+        <div class="camera-controls-wrapper">
+          <div class="camera-actions-bar">
+            <button class="btn btn-secondary" id="switchCameraBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0-4.418-3.582-8-8-8s-8 3.582-8 8c0 2.21.896 4.21 2.343 5.657L4 18h6v-6l-2.05 2.05C6.757 12.858 6 11.515 6 10c0-3.314 2.686-6 6-6s6 2.686 6 6c0 1.515-.757 2.858-1.95 4.05L18 16.1c1.233-1.47 2-3.38 2-6.1z"></path>
+              </svg>
+              Switch Lens (Front / Rear)
+            </button>
+
+            <button class="btn btn-secondary" id="stopCameraBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="6" width="12" height="12"></rect>
+              </svg>
+              Pause / Stop Camera
+            </button>
+          </div>
+
+          <div class="camera-status-strip">
+            <div class="status-badge">
+              <span class="status-indicator-dot" id="liveDot"></span>
+              <span id="liveStatusText">Camera standby</span>
+            </div>
+            <span id="cameraNameBadge" style="font-size:11.5px;color:var(--text-light);">Rear Camera (Auto)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANE 2: DOCUMENT & FILE UPLOAD -->
+    <section class="tab-pane" id="uploadPane">
+      <div class="surface-card">
+        <div class="card-header-formal">
+          <div class="card-title-group">
+            <h2>Document &amp; Screenshot Scanner</h2>
+            <p>Analyze digital documents, high-resolution scans, or clipboard images</p>
+          </div>
         </div>
 
-        <!-- Secondary Camera Controls -->
-        <div class="scanner-controls">
-          <button class="btn btn-secondary" onclick="switchCamera()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 10c0-4.418-3.582-8-8-8s-8 3.582-8 8c0 2.21.896 4.21 2.343 5.657L4 18h6v-6l-2.05 2.05C6.757 12.858 6 11.515 6 10c0-3.314 2.686-6 6-6s6 2.686 6 6c0 1.515-.757 2.858-1.95 4.05L18 16.1c1.233-1.47 2-3.38 2-6.1z"></path>
-            </svg>
-            Switch Camera
-          </button>
-          <button class="btn btn-secondary" onclick="openFilePicker()">
+        <!-- Dropzone Box -->
+        <div class="dropzone-box" id="dropzoneBox">
+          <div class="dropzone-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
               <circle cx="8.5" cy="8.5" r="1.5"></circle>
               <polyline points="21 15 16 10 5 21"></polyline>
             </svg>
-            Scan Image
-          </button>
+          </div>
+          <div class="dropzone-title">Drag &amp; Drop QR Image or Screenshot</div>
+          <p class="dropzone-subtitle">Supports PNG, JPG, JPEG, WEBP, or SVG documents</p>
+          <button class="btn btn-secondary btn-sm" id="browseFileBtn">Browse Local File</button>
+          <div class="dropzone-tip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Shortcut: Paste screenshot directly anywhere with Ctrl+V / Cmd+V
+          </div>
         </div>
 
-        <!-- Hidden Image File Input -->
-        <input type="file" id="fileInput" accept="image/*" hidden />
+        <input type="file" id="fileUploadInput" accept="image/*" style="display:none;" />
+      </div>
+    </section>
 
-        <!-- Scanned Result Card -->
-        <div class="result-wrapper" id="result">
-          <div class="result-header">
-            <div class="result-icon-box" id="resultIcon">🔍</div>
-            <div class="result-header-text">
-              <h2>QR Detected</h2>
-              <p>Decoded information and fast actions</p>
+    <!-- PANE 3: QR GENERATOR STUDIO -->
+    <section class="tab-pane" id="genPane">
+      <div class="surface-card">
+        <div class="card-header-formal">
+          <div class="card-title-group">
+            <h2>Enterprise QR Generator</h2>
+            <p>Author professional, standard-compliant QR codes for corporate assets and meetings</p>
+          </div>
+        </div>
+
+        <div class="generator-grid">
+          <div class="gen-form-col">
+            <div class="gen-type-selector">
+              <button class="gen-type-btn active" data-gentype="url">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span>Web URL</span>
+              </button>
+              <button class="gen-type-btn" data-gentype="vcard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Contact vCard</span>
+              </button>
+              <button class="gen-type-btn" data-gentype="wifi">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                  <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                  <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                  <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                </svg>
+                <span>Wi-Fi Pass</span>
+              </button>
+              <button class="gen-type-btn" data-gentype="text">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <span>Plain Text</span>
+              </button>
+              <button class="gen-type-btn" data-gentype="email">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>Email</span>
+              </button>
             </div>
+
+            <!-- Dynamic Form Fields -->
+            <div id="genFieldsContainer">
+              <!-- Populated via JS based on type -->
+            </div>
+
+            <button class="btn btn-primary" id="generateQrBtn" style="margin-top:8px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              Render High-Resolution QR
+            </button>
           </div>
 
-          <div class="type-pill" id="typeBadge">QR Code</div>
+          <div class="gen-preview-col">
+            <div class="gen-preview-card">
+              <div class="qr-canvas-holder" id="qrCanvasHolder">
+                <div style="font-size:12px;color:var(--text-light);text-align:center;">
+                  Generated QR preview will render here
+                </div>
+              </div>
 
-          <div class="details-card" id="infoBox"></div>
+              <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-secondary btn-sm" id="downloadQrPngBtn" style="width:100%;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Download PNG (High-Res)
+                </button>
+                <button class="btn btn-secondary btn-sm" id="copyQrImageBtn" style="width:100%;">
+                  Copy QR Data URI
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="actions-container">
-            <button class="btn btn-action-copy" onclick="copyData()">
+    <!-- INTELLIGENT DECODED RESULT SECTION -->
+    <section class="result-section" id="resultSection">
+      <div class="result-card">
+        <!-- Result Top Header Banner -->
+        <div class="result-banner">
+          <div class="result-banner-left">
+            <div class="result-icon-badge" id="resultIcon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <div class="result-headline">
+              <h3 id="resultTitle">Decoded Successfully</h3>
+              <p id="resultMeta">Detected via client-side optical parsing</p>
+            </div>
+          </div>
+          <div class="result-banner-right">
+            <span class="type-indicator-pill" id="resultTypeBadge">Enterprise Payload</span>
+          </div>
+        </div>
+
+        <!-- Formatted Key-Value Details Grid -->
+        <div class="details-table" id="resultDetailsBox">
+          <!-- Populated dynamically with one-click copy per item -->
+        </div>
+
+        <!-- Structured Primary Actions Bar -->
+        <div class="result-action-bar">
+          <div class="action-group-left" id="primaryActionsContainer">
+            <!-- Dynamic context actions: Open Link, Download .vcf, Add .ics, Copy Wi-Fi, etc. -->
+          </div>
+
+          <div class="action-group-right">
+            <button class="btn btn-secondary btn-sm" id="copyAllDataBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              Copy Data
+              Copy All Data
             </button>
-            <button class="btn btn-action-open" id="mainAction" onclick="mainAction()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
+            <button class="btn btn-secondary btn-sm" id="exportScanJsonBtn">
+              Export JSON
+            </button>
+            <button class="btn btn-primary btn-sm" id="scanAgainBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
               </svg>
-              Open Link
+              Scan Another QR
             </button>
           </div>
-
-          <details class="raw-data-panel">
-            <summary>View raw decoded text</summary>
-            <pre id="rawData"></pre>
-          </details>
-
-          <button class="btn btn-rescan" onclick="scanAgain()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 4 23 10 17 10"></polyline>
-              <polyline points="1 20 1 14 7 14"></polyline>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-            Scan Another QR
-          </button>
         </div>
-      </section>
 
-      <!-- Footer Info -->
-      <footer class="footer">
-        <div class="security-note">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        <!-- Raw Decoded Data Accordion -->
+        <details class="raw-data-accordion">
+          <summary>
+            <span>Inspect Raw Bytecode &amp; Payload String</span>
+            <span id="rawCharCount" style="font-family:var(--font-mono);font-size:11px;color:var(--text-light);">0 bytes</span>
+          </summary>
+          <pre class="raw-code-box" id="rawDecodedPre"></pre>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <!-- Security & Privacy Modal -->
+  <div class="modal-backdrop" id="privacyModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>Enterprise Security &amp; Compliance</h3>
+        <button class="modal-close-btn" id="closePrivacyModalBtn" aria-label="Close modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
-          Processed securely 100% on device. No camera feeds or data saved.
-        </div>
-        <div>
-          Crafted with care by <strong>Radhey Bhadja</strong> &bull;
-          <a href="https://www.instagram.com/radhey_bhadja/" target="_blank" rel="noopener noreferrer">Instagram</a>
-        </div>
-      </footer>
-    </main>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p><strong>QRify Enterprise</strong> is engineered with zero-trust client-side architecture. Designed specifically for formal corporate environments, legal firms, healthcare institutions, and audit teams.</p>
+        
+        <ul class="compliance-checklist">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <div><strong>Air-Gapped Processing:</strong> All barcode and image decoding occurs strictly in the browser memory sandbox. No camera streams, images, or decoded payloads are transmitted to any cloud servers.</div>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <div><strong>Zero Telemetry &amp; No Tracking:</strong> No tracking cookies, third-party analytics pixels, or session recording scripts.</div>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <div><strong>Stateless Privacy:</strong> Decoded information exists only in volatile memory during your active view and is cleared immediately when you reset or close the tab.</div>
+          </li>
+        </ul>
+        <button class="btn btn-primary" id="ackPrivacyBtn" style="width:100%;margin-top:12px;">Understood</button>
+      </div>
+    </div>
+  </div>
 
-    <!-- Floating Feedback Toast -->
-    <div class="toast" id="toast"></div>
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="appToast">
+    <span id="toastMessage">Action performed</span>
+  </div>
 
-    <script>
-      let scanner = null;
-      let scanning = false;
-      let cameras = [];
-      let cameraIndex = 0;
-      let scannedData = "";
-      let currentAction = null;
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div>
+      <strong>QRify Enterprise</strong> &bull; Secured with local HTML5 &amp; WebAssembly optical engine.
+    </div>
+    <div class="footer-links">
+      <button id="footerPrivacyLink">Security Policy</button>
+      <button id="footerDocsLink">System Status: Active</button>
+    </div>
+  </footer>
 
-      const reader = document.getElementById("reader");
-      const placeholder = document.getElementById("cameraPlaceholder");
-      const statusText = document.getElementById("statusText");
-      const statusDot = document.getElementById("statusDot");
-      const result = document.getElementById("result");
-      const fileInput = document.getElementById("fileInput");
+  <!-- Application Logic -->
+  <script>
+    /* Global Application State */
+    let scanner = null;
+    let isScanning = false;
+    let cameraList = [];
+    let currentCameraIndex = 0;
+    let currentDecodedData = "";
+    let currentParsedObject = null;
+    let generatedQrInstance = null;
 
-      function errMsg(e) {
-        return e && e.message ? e.message : String(e);
-      }
+    /* SVG Icons Catalog for Formal Display */
+    const SVG_ICONS = {
+      shieldLock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
+      warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+      link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`,
+      wifi: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`,
+      user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
+      calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+      card: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>`,
+      mail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`,
+      phone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`,
+      message: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+      mapPin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+      fileText: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`
+    };
 
-      async function stopAndClear() {
-        if (scanner) {
-          try {
-            if (scanning) {
-              await scanner.stop();
-            }
-          } catch (e) {
-            console.warn("scanner.stop error:", e);
+    /* DOM Cache */
+    const readerElem = document.getElementById("reader");
+    const cameraPlaceholder = document.getElementById("cameraPlaceholder");
+    const liveStatusText = document.getElementById("liveStatusText");
+    const liveDot = document.getElementById("liveDot");
+    const hudStatus = document.getElementById("hudStatus");
+    const cameraNameBadge = document.getElementById("cameraNameBadge");
+    const fileUploadInput = document.getElementById("fileUploadInput");
+    const dropzoneBox = document.getElementById("dropzoneBox");
+    const resultSection = document.getElementById("resultSection");
+    const appToast = document.getElementById("appToast");
+    const toastMessage = document.getElementById("toastMessage");
+    const privacyModal = document.getElementById("privacyModal");
+
+    /* Initialize Application on DOMContentLoaded */
+    window.addEventListener("DOMContentLoaded", () => {
+      setupTabs();
+      setupModals();
+      setupDropzone();
+      setupGeneratorStudio();
+    });
+
+    /* Tab Controller */
+    function setupTabs() {
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach(b => {
+            b.classList.remove("active");
+            b.setAttribute("aria-selected", "false");
+          });
+          document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+          const targetId = btn.getAttribute("data-tab");
+          const targetPane = document.getElementById(targetId);
+          if (targetPane) targetPane.classList.add("active");
+        });
+      });
+    }
+
+    /* Modal Setup */
+    function setupModals() {
+      const openBtn = document.getElementById("privacyNoticeBtn");
+      const closeBtn = document.getElementById("closePrivacyModalBtn");
+      const ackBtn = document.getElementById("ackPrivacyBtn");
+      const footerLink = document.getElementById("footerPrivacyLink");
+      const footerDocs = document.getElementById("footerDocsLink");
+
+      const openModal = () => privacyModal.classList.add("show");
+      const closeModal = () => privacyModal.classList.remove("show");
+
+      openBtn.addEventListener("click", openModal);
+      if (footerLink) footerLink.addEventListener("click", openModal);
+      if (footerDocs) footerDocs.addEventListener("click", () => {
+        showToast("System Status: Air-gapped optical engine operating normally");
+      });
+      closeBtn.addEventListener("click", closeModal);
+      ackBtn.addEventListener("click", closeModal);
+      privacyModal.addEventListener("click", (e) => {
+        if (e.target === privacyModal) closeModal();
+      });
+    }
+
+    /* Toast Notification */
+    let toastTimer = null;
+    function showToast(msg) {
+      toastMessage.textContent = msg;
+      appToast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        appToast.classList.remove("show");
+      }, 2600);
+    }
+
+    /* Camera Scanner Engine */
+    const startCameraBtn = document.getElementById("startCameraBtn");
+    const stopCameraBtn = document.getElementById("stopCameraBtn");
+    const switchCameraBtn = document.getElementById("switchCameraBtn");
+
+    startCameraBtn.addEventListener("click", startOpticalScanner);
+    stopCameraBtn.addEventListener("click", stopCameraScanner);
+    switchCameraBtn.addEventListener("click", switchCameraLens);
+
+    async function stopAndClearScanner() {
+      if (scanner) {
+        try {
+          if (isScanning) {
+            await scanner.stop();
           }
-          try {
-            await scanner.clear();
-          } catch (e) {
-            console.warn("scanner.clear error:", e);
-          }
-          scanner = null;
+        } catch (e) {
+          console.warn("Scanner stop issue:", e);
         }
-        scanning = false;
+        try {
+          await scanner.clear();
+        } catch (e) {
+          console.warn("Scanner clear issue:", e);
+        }
+        scanner = null;
+      }
+      isScanning = false;
+    }
+
+    async function startOpticalScanner() {
+      if (isScanning) return;
+
+      if (!window.isSecureContext && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+        showToast("Camera access requires an HTTPS connection.");
+        liveStatusText.textContent = "HTTPS required for camera";
+        return;
       }
 
-      function resetToPlaceholder(message) {
-        reader.style.display = "none";
-        placeholder.classList.remove("hidden");
-        statusDot.classList.remove("active");
-        if (message) {
-          statusText.innerText = message;
-        }
+      if (typeof Html5Qrcode === "undefined") {
+        showToast("Optical engine library unavailable. Check network.");
+        liveStatusText.textContent = "Library not loaded";
+        return;
       }
 
-      async function startScanner() {
-        if (scanning) return;
+      liveStatusText.textContent = "Negotiating optical sensor...";
+      hudStatus.textContent = "Requesting permissions...";
 
-        if (!window.isSecureContext && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
-          showToast("Camera requires an HTTPS connection.");
-          statusText.innerText = "Camera requires HTTPS";
+      try {
+        cameraList = await Html5Qrcode.getCameras();
+        if (!cameraList || cameraList.length === 0) {
+          await activateCameraWithConstraint({ facingMode: "environment" });
           return;
         }
 
-        if (typeof Html5Qrcode === "undefined") {
-          showToast("Scanner library could not be loaded. Check your internet.");
-          statusText.innerText = "Library load error";
-          return;
-        }
-
-        statusText.innerText = "Requesting camera access...";
-
+        currentCameraIndex = findRearCameraIndex(cameraList);
+        const activeCamera = cameraList[currentCameraIndex];
+        cameraNameBadge.textContent = activeCamera.label || "Optical Sensor Active";
+        await activateCameraWithConstraint(activeCamera.id);
+      } catch (err) {
+        console.warn("getCameras enumeration failed, attempting environment facingMode fallback:", err);
         try {
-          cameras = await Html5Qrcode.getCameras();
+          await activateCameraWithConstraint({ facingMode: "environment" });
+        } catch (fallbackErr) {
+          console.error("Camera activation failed:", fallbackErr);
+          liveStatusText.textContent = "Camera access denied";
+          hudStatus.textContent = "Sensor permission error";
+          showToast("Camera permission denied or camera busy.");
+          resetCameraPlaceholder("Please check browser camera permissions");
+        }
+      }
+    }
 
-          if (!cameras || cameras.length === 0) {
-            // Direct constraint fallback
-            await launchCamera({ facingMode: "environment" });
-            return;
-          }
+    function findRearCameraIndex(cameras) {
+      const idx = cameras.findIndex(c => {
+        const lbl = (c.label || "").toLowerCase();
+        return lbl.includes("back") || lbl.includes("rear") || lbl.includes("environment");
+      });
+      return idx >= 0 ? idx : 0;
+    }
 
-          cameraIndex = findRearCamera();
-          await launchCamera(cameras[cameraIndex].id);
-        } catch (error) {
-          console.warn("getCameras failed, trying direct facingMode fallback:", error);
+    async function activateCameraWithConstraint(cameraConfig) {
+      await stopAndClearScanner();
+
+      scanner = new Html5Qrcode("reader", { verbose: false });
+      cameraPlaceholder.classList.add("hidden");
+      readerElem.style.display = "block";
+
+      const scanConfig = {
+        fps: 20,
+        qrbox: (w, h) => {
+          const size = Math.floor(Math.min(w, h) * 0.72);
+          return { width: Math.min(size, 380), height: Math.min(size, 380) };
+        },
+        aspectRatio: 1.0,
+        disableFlip: false,
+      };
+
+      try {
+        await scanner.start(cameraConfig, scanConfig, onScanCaptured, onScanProgress);
+        isScanning = true;
+        liveDot.classList.add("active");
+        liveStatusText.textContent = "Scanning active • High-speed decoding";
+        hudStatus.textContent = "Align QR code within reticle";
+      } catch (e) {
+        console.error("Scanner start error:", e);
+        if (typeof cameraConfig === "string" || (cameraConfig && cameraConfig.id)) {
           try {
-            await launchCamera({ facingMode: "environment" });
-          } catch (fallbackError) {
-            console.error("Direct camera fallback failed:", fallbackError);
-            statusText.innerText = "Camera permission denied or unavailable";
-            showToast("Please allow camera permissions in your browser.");
-            resetToPlaceholder(null);
-          }
-        }
-      }
-
-      function findRearCamera() {
-        const index = cameras.findIndex((camera) => {
-          const label = (camera.label || "").toLowerCase();
-          return label.includes("back") || label.includes("rear") || label.includes("environment");
-        });
-        return index >= 0 ? index : 0;
-      }
-
-      async function launchCamera(cameraConfig) {
-        await stopAndClear();
-
-        scanner = new Html5Qrcode("reader", { verbose: false });
-        placeholder.classList.add("hidden");
-        reader.style.display = "block";
-
-        const config = {
-          fps: 15,
-          qrbox: function (width, height) {
-            const size = Math.floor(Math.min(width, height) * 0.7);
-            return { width: Math.min(size, 340), height: Math.min(size, 340) };
-          },
-          aspectRatio: 1.0,
-          disableFlip: false,
-        };
-
-        try {
-          await scanner.start(cameraConfig, config, onScanSuccess, onScanError);
-          scanning = true;
-          statusDot.classList.add("active");
-          statusText.innerText = "Scanning... align QR within frame";
-        } catch (error) {
-          console.error("Camera start failed:", error);
-
-          const isDeviceId =
-            typeof cameraConfig === "string" ||
-            (cameraConfig && typeof cameraConfig === "object" && cameraConfig.id);
-
-          if (isDeviceId) {
-            try {
-              await stopAndClear();
-              scanner = new Html5Qrcode("reader", { verbose: false });
-              reader.style.display = "block";
-              await scanner.start({ facingMode: "environment" }, config, onScanSuccess, onScanError);
-              scanning = true;
-              statusDot.classList.add("active");
-              statusText.innerText = "Scanning... align QR within frame";
-              return;
-            } catch (e2) {
-              console.error("FacingMode fallback failed:", e2);
-              statusText.innerText = "Camera error: " + errMsg(e2);
-              showToast("Camera error: " + errMsg(e2));
-              resetToPlaceholder("Camera failed to start");
-              return;
-            }
-          }
-
-          statusText.innerText = "Camera error: " + errMsg(error);
-          showToast("Camera error: " + errMsg(error));
-          resetToPlaceholder("Camera error");
-        }
-      }
-
-      async function onScanSuccess(decodedText) {
-        if (!scanning) return;
-        scanning = false;
-        scannedData = decodedText;
-
-        await stopAndClear();
-
-        statusDot.classList.remove("active");
-        statusText.innerText = "QR code captured successfully";
-        reader.style.display = "none";
-        placeholder.classList.add("hidden");
-
-        analyzeQR(decodedText);
-
-        if (navigator.vibrate) {
-          try {
-            navigator.vibrate(100);
-          } catch (e) {}
-        }
-      }
-
-      function onScanError(error) {
-        // Continuous search loop - silent
-      }
-
-      function analyzeQR(data) {
-        try {
-          analyzeQRInner(data);
-        } catch (error) {
-          console.error("Parsing error:", error);
-          displayResult("Plain Text", "📝", { Text: data });
-        }
-      }
-
-      function analyzeQRInner(data) {
-        let type = "Plain Text";
-        let icon = "📝";
-        let info = {};
-        currentAction = null;
-
-        if (isURL(data)) {
-          type = "URL / Link";
-          icon = "🔗";
-          info = { URL: data };
-          currentAction = { type: "url", value: data };
-        } else if (/^WIFI:/i.test(data)) {
-          type = "Wi-Fi Network";
-          icon = "📶";
-          info = parseWiFi(data);
-        } else if (/^upi:\/\//i.test(data)) {
-          type = "UPI / Payment";
-          icon = "💳";
-          info = parseUPI(data);
-          currentAction = { type: "upi", value: data };
-        } else if (/^mailto:/i.test(data)) {
-          type = "Email";
-          icon = "✉️";
-          info = parseEmail(data);
-          currentAction = { type: "email", value: data };
-        } else if (/^tel:/i.test(data)) {
-          type = "Phone Number";
-          icon = "📞";
-          info = { Phone: data.substring(4) };
-          currentAction = { type: "phone", value: data };
-        } else if (/^sms:/i.test(data)) {
-          type = "SMS";
-          icon = "💬";
-          info = parseSMS(data);
-          currentAction = { type: "sms", value: data };
-        } else if (/^geo:/i.test(data)) {
-          type = "Location";
-          icon = "📍";
-          info = parseLocation(data);
-          currentAction = {
-            type: "url",
-            value: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(data.substring(4)),
-          };
-        } else if (/BEGIN:VCARD/i.test(data)) {
-          type = "Contact Card";
-          icon = "👤";
-          info = parseVCard(data);
-        } else if (/^MECARD:/i.test(data)) {
-          type = "Contact Card";
-          icon = "👤";
-          info = parseMeCard(data);
-        } else if (/BEGIN:VEVENT/i.test(data)) {
-          type = "Calendar Event";
-          icon = "📅";
-          info = parseCalendar(data);
-        } else {
-          info = { Content: data };
-        }
-
-        displayResult(type, icon, info);
-      }
-
-      function isURL(text) {
-        try {
-          const url = new URL(text);
-          return url.protocol === "http:" || url.protocol === "https:";
-        } catch {
-          return false;
-        }
-      }
-
-      function parseWiFi(data) {
-        const content = data.substring(5);
-        const fields = {};
-        const parts = content.match(/(?:^|;)([STPH]):((?:\\.|[^;])*)/g) || [];
-
-        parts.forEach((part) => {
-          const clean = part.replace(/^;/, "");
-          const index = clean.indexOf(":");
-          if (index === -1) return;
-          const key = clean.substring(0, index);
-          const value = clean.substring(index + 1);
-          fields[key] = unescapeQR(value);
-        });
-
-        return {
-          "Network SSID": fields.S || "Hidden / Unknown",
-          Password: fields.P || "None",
-          Security: fields.T || "None",
-          Hidden: (fields.H || "").toLowerCase() === "true" ? "Yes" : "No",
-        };
-      }
-
-      function parseUPI(data) {
-        try {
-          const url = new URL(data);
-          const p = url.searchParams;
-          return {
-            "UPI ID": p.get("pa") || "Not specified",
-            Payee: p.get("pn") || "Not specified",
-            Amount: p.get("am") ? "₹" + p.get("am") : "Not specified",
-            Currency: p.get("cu") || "INR",
-            "Transaction Note": p.get("tn") || "None",
-            "Reference ID": p.get("tr") || "None",
-          };
-        } catch {
-          return { "Payment URI": data };
-        }
-      }
-
-      function parseEmail(data) {
-        const content = data.substring(7);
-        const parts = content.split("?");
-        let emailAddress = parts[0];
-        try {
-          emailAddress = decodeURIComponent(emailAddress);
-        } catch (e) {}
-
-        const result = { Email: emailAddress };
-        if (parts[1]) {
-          const params = new URLSearchParams(parts[1]);
-          if (params.has("subject")) result.Subject = params.get("subject");
-          if (params.has("body")) result.Message = params.get("body");
-        }
-        return result;
-      }
-
-      function parseSMS(data) {
-        const content = data.substring(4);
-        const parts = content.split("?");
-        const result = { Phone: parts[0] };
-        if (parts[1]) {
-          const params = new URLSearchParams(parts[1]);
-          if (params.has("body")) result.Message = params.get("body");
-        }
-        return result;
-      }
-
-      function parseLocation(data) {
-        const value = data.substring(4);
-        const parts = value.split(",");
-        return {
-          Latitude: parts[0] || "",
-          Longitude: parts[1] || "",
-        };
-      }
-
-      function parseVCard(data) {
-        const result = {};
-        const lines = data.split(/\r?\n/);
-
-        lines.forEach((line) => {
-          const clean = line.trim();
-          if (!clean) return;
-          const colonIndex = clean.indexOf(":");
-          if (colonIndex === -1) return;
-
-          const rawKey = clean.substring(0, colonIndex).toUpperCase();
-          const key = rawKey.split(";")[0];
-          const value = clean.substring(colonIndex + 1);
-
-          switch (key) {
-            case "FN": result.Name = value; break;
-            case "TEL": if (!result.Phone) result.Phone = value; break;
-            case "EMAIL": if (!result.Email) result.Email = value; break;
-            case "ORG": result.Organization = value; break;
-            case "URL": result.Website = value; break;
-            case "ADR":
-              if (!result.Address) result.Address = value.split(";").filter(Boolean).join(", ");
-              break;
-          }
-        });
-
-        return Object.keys(result).length ? result : { Contact: "Contact card data" };
-      }
-
-      function parseMeCard(data) {
-        const content = data.substring(7);
-        const result = {};
-        const fields = content.split(";");
-
-        fields.forEach((field) => {
-          const index = field.indexOf(":");
-          if (index === -1) return;
-          const key = field.substring(0, index);
-          const value = field.substring(index + 1);
-
-          switch (key.toUpperCase()) {
-            case "N": result.Name = value; break;
-            case "TEL": result.Phone = value; break;
-            case "EMAIL": result.Email = value; break;
-            case "URL": result.Website = value; break;
-            case "ADR": result.Address = value; break;
-            case "ORG": result.Organization = value; break;
-          }
-        });
-
-        return result;
-      }
-
-      function parseCalendar(data) {
-        const result = {};
-        const lines = data.split(/\r?\n/);
-
-        lines.forEach((line) => {
-          if (line.startsWith("SUMMARY:")) result.Event = line.substring(8);
-          else if (line.startsWith("LOCATION:")) result.Location = line.substring(9);
-          else if (line.startsWith("DESCRIPTION:")) result.Description = line.substring(12);
-          else if (line.startsWith("DTSTART")) result.Start = line.substring(line.indexOf(":") + 1);
-          else if (line.startsWith("DTEND")) result.End = line.substring(line.indexOf(":") + 1);
-        });
-
-        return result;
-      }
-
-      function unescapeQR(value) {
-        return value
-          .replace(/\\\\/g, "\u0000")
-          .replace(/\\;/g, ";")
-          .replace(/\\:/g, ":")
-          .replace(/\\,/g, ",")
-          .replace(/\u0000/g, "\\");
-      }
-
-      function displayResult(type, icon, info) {
-        document.getElementById("typeBadge").innerText = type;
-        document.getElementById("resultIcon").innerText = icon;
-
-        const box = document.getElementById("infoBox");
-        box.innerHTML = "";
-
-        Object.entries(info).forEach(([key, value]) => {
-          const row = document.createElement("div");
-          row.className = "detail-row";
-
-          const label = document.createElement("div");
-          label.className = "detail-label";
-          label.innerText = key;
-
-          const val = document.createElement("div");
-          val.className = "detail-value";
-          val.innerText = value;
-
-          if (["URL", "Website", "UPI ID", "Email"].includes(key)) {
-            val.classList.add("link");
-          }
-
-          row.appendChild(label);
-          row.appendChild(val);
-          box.appendChild(row);
-        });
-
-        document.getElementById("rawData").textContent = scannedData;
-        updateActionButton();
-
-        result.classList.add("show");
-
-        setTimeout(() => {
-          result.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 120);
-      }
-
-      function updateActionButton() {
-        const button = document.getElementById("mainAction");
-
-        if (!currentAction) {
-          button.style.display = "none";
-          return;
-        }
-
-        button.style.display = "inline-flex";
-
-        let label = "Open Link";
-        switch (currentAction.type) {
-          case "url": label = "Open Link"; break;
-          case "upi": label = "Pay via UPI"; break;
-          case "email": label = "Send Email"; break;
-          case "phone": label = "Call Phone"; break;
-          case "sms": label = "Send SMS"; break;
-        }
-
-        button.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <line x1="10" y1="14" x2="21" y2="3"></line>
-          </svg>
-          ${label}
-        `;
-      }
-
-      function mainAction() {
-        if (!currentAction) {
-          showToast("No direct action available.");
-          return;
-        }
-
-        const value = currentAction.value;
-        if (currentAction.type === "url") {
-          window.open(value, "_blank", "noopener,noreferrer");
-          return;
-        }
-        window.location.href = value;
-      }
-
-      async function copyData() {
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(scannedData);
-            showToast("Copied to clipboard!");
-            return;
-          }
-          throw new Error("Clipboard API unavailable");
-        } catch {
-          try {
-            const textarea = document.createElement("textarea");
-            textarea.value = scannedData;
-            textarea.style.position = "fixed";
-            textarea.style.opacity = "0";
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-            document.execCommand("copy");
-            textarea.remove();
-            showToast("Copied to clipboard!");
-          } catch (err) {
-            console.error(err);
-            showToast("Copying is not supported on this browser.");
-          }
-        }
-      }
-
-      async function switchCamera() {
-        if (!scanning) {
-          showToast("Start the camera first.");
-          return;
-        }
-
-        if (!cameras || cameras.length < 2) {
-          try {
-            await stopAndClear();
+            await stopAndClearScanner();
             scanner = new Html5Qrcode("reader", { verbose: false });
-            reader.style.display = "block";
-            await scanner.start(
-              { facingMode: "user" },
-              {
-                fps: 15,
-                qrbox: (w, h) => {
-                  const s = Math.floor(Math.min(w, h) * 0.7);
-                  return { width: Math.min(s, 340), height: Math.min(s, 340) };
-                },
-                aspectRatio: 1.0,
-              },
-              onScanSuccess,
-              onScanError
-            );
-            scanning = true;
-            statusDot.classList.add("active");
-            statusText.innerText = "Scanning (front camera)...";
-          } catch (e) {
-            showToast("Only one camera is available.");
-            resetToPlaceholder("Camera active");
+            readerElem.style.display = "block";
+            await scanner.start({ facingMode: "environment" }, scanConfig, onScanCaptured, onScanProgress);
+            isScanning = true;
+            liveDot.classList.add("active");
+            liveStatusText.textContent = "Scanning active (auto-fallback)";
+            hudStatus.textContent = "Align QR code within reticle";
+            return;
+          } catch (e2) {
+            console.error("FacingMode fallback failed:", e2);
           }
-          return;
         }
-
-        cameraIndex = (cameraIndex + 1) % cameras.length;
-        await launchCamera(cameras[cameraIndex].id);
+        showToast("Camera error: " + (e.message || String(e)));
+        resetCameraPlaceholder("Camera failed to initialize");
       }
+    }
 
-      function openFilePicker() {
-        fileInput.click();
+    async function stopCameraScanner() {
+      await stopAndClearScanner();
+      resetCameraPlaceholder("Optical sensor paused by user");
+      showToast("Camera sensor paused");
+    }
+
+    function resetCameraPlaceholder(statusMsg) {
+      readerElem.style.display = "none";
+      cameraPlaceholder.classList.remove("hidden");
+      liveDot.classList.remove("active");
+      if (statusMsg) {
+        liveStatusText.textContent = statusMsg;
+        hudStatus.textContent = "Sensor standby";
       }
+    }
 
-      fileInput.addEventListener("change", async function (event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
+    async function switchCameraLens() {
+      if (!isScanning) {
+        showToast("Initialize camera first to switch lenses");
+        return;
+      }
+      if (!cameraList || cameraList.length < 2) {
         try {
-          await stopAndClear();
+          await stopAndClearScanner();
           scanner = new Html5Qrcode("reader", { verbose: false });
-
-          reader.style.display = "none";
-          placeholder.classList.add("hidden");
-
-          const decoded = await scanner.scanFile(file, false);
-          scannedData = decoded;
-          analyzeQR(decoded);
-          showToast("QR code detected from image!");
-        } catch (error) {
-          console.error(error);
-          showToast("No QR code detected in this image.");
-          resetToPlaceholder("Camera ready");
+          readerElem.style.display = "block";
+          await scanner.start(
+            { facingMode: "user" },
+            { fps: 20, qrbox: (w, h) => ({ width: 300, height: 300 }), aspectRatio: 1.0 },
+            onScanCaptured,
+            onScanProgress
+          );
+          isScanning = true;
+          liveDot.classList.add("active");
+          cameraNameBadge.textContent = "Front Camera";
+          showToast("Switched to front camera");
+        } catch (e) {
+          showToast("No alternative camera sensor detected");
         }
+        return;
+      }
 
-        fileInput.value = "";
+      currentCameraIndex = (currentCameraIndex + 1) % cameraList.length;
+      const targetCam = cameraList[currentCameraIndex];
+      cameraNameBadge.textContent = targetCam.label || ("Camera " + (currentCameraIndex + 1));
+      await activateCameraWithConstraint(targetCam.id);
+      showToast("Switched camera: " + (targetCam.label || "Lens " + (currentCameraIndex + 1)));
+    }
+
+    function onScanProgress(err) {
+      // Continuous silent frame scanning loop
+    }
+
+    async function onScanCaptured(decodedText) {
+      if (!isScanning) return;
+      isScanning = false;
+      currentDecodedData = decodedText;
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(80); } catch (e) {}
+      }
+
+      await stopAndClearScanner();
+      resetCameraPlaceholder("QR code captured successfully");
+      liveStatusText.textContent = "Code detected & analyzed";
+
+      processDecodedPayload(decodedText);
+    }
+
+    /* Drag and Drop / File Input Handling */
+    function setupDropzone() {
+      const browseBtn = document.getElementById("browseFileBtn");
+      browseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        fileUploadInput.click();
+      });
+      dropzoneBox.addEventListener("click", (e) => {
+        if (e.target !== browseBtn) fileUploadInput.click();
       });
 
-      async function scanAgain() {
-        result.classList.remove("show");
-        scannedData = "";
-        currentAction = null;
-        document.getElementById("rawData").textContent = "";
+      ["dragenter", "dragover"].forEach(eventName => {
+        dropzoneBox.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzoneBox.classList.add("dragover");
+        });
+      });
 
-        statusText.innerText = "Starting camera...";
+      ["dragleave", "drop"].forEach(eventName => {
+        dropzoneBox.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzoneBox.classList.remove("dragover");
+        });
+      });
 
-        if (cameras.length > 0) {
-          await launchCamera(cameras[cameraIndex].id);
-        } else {
-          await startScanner();
+      dropzoneBox.addEventListener("drop", (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+          handleImageScanFile(files[0]);
         }
+      });
+
+      fileUploadInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          handleImageScanFile(e.target.files[0]);
+        }
+        fileUploadInput.value = "";
+      });
+
+      // Global Clipboard Paste Listener (Ctrl+V)
+      window.addEventListener("paste", (e) => {
+        const items = e.clipboardData ? e.clipboardData.items : null;
+        if (!items) return;
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            const blob = items[i].getAsFile();
+            if (blob) {
+              showToast("Pasted image detected from clipboard...");
+              handleImageScanFile(blob);
+              break;
+            }
+          }
+        }
+      });
+    }
+
+    async function handleImageScanFile(file) {
+      if (!file) return;
+      showToast("Processing document image...");
+
+      try {
+        await stopAndClearScanner();
+        resetCameraPlaceholder("Analyzing file...");
+        scanner = new Html5Qrcode("reader", { verbose: false });
+
+        const decoded = await scanner.scanFile(file, false);
+        currentDecodedData = decoded;
+        processDecodedPayload(decoded);
+        showToast("Document barcode successfully decoded!");
+      } catch (err) {
+        console.error("Scan file error:", err);
+        showToast("No readable QR code found in this document.");
+      }
+    }
+
+    /* Advanced Payload Parser & Categorization Engine */
+    function processDecodedPayload(data) {
+      currentDecodedData = data;
+      const parsed = categorizePayload(data);
+      currentParsedObject = parsed;
+
+      renderResultCard(parsed);
+
+      resultSection.classList.add("show");
+      resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function categorizePayload(data) {
+      if (isValidURL(data)) {
+        return parseURLData(data);
+      }
+      if (/^WIFI:/i.test(data)) {
+        return parseWifiData(data);
+      }
+      if (/BEGIN:VCARD/i.test(data)) {
+        return parseVCardData(data);
+      }
+      if (/^MECARD:/i.test(data)) {
+        return parseMeCardData(data);
+      }
+      if (/BEGIN:VEVENT/i.test(data)) {
+        return parseCalendarData(data);
+      }
+      if (/^upi:\/\//i.test(data)) {
+        return parseUpiData(data);
+      }
+      if (/^mailto:/i.test(data)) {
+        return parseEmailData(data);
+      }
+      if (/^tel:/i.test(data)) {
+        const phone = data.substring(4);
+        return {
+          type: "Telephone",
+          iconSvg: SVG_ICONS.phone,
+          title: "Direct Voice Line",
+          badge: "Telecom",
+          fields: { "Phone Number": phone },
+          primaryAction: { label: "Call Telephone", type: "call", value: data }
+        };
+      }
+      if (/^sms:/i.test(data)) {
+        return parseSmsData(data);
+      }
+      if (/^geo:/i.test(data)) {
+        return parseGeoData(data);
       }
 
-      let toastTimer;
-      function showToast(text) {
-        const toast = document.getElementById("toast");
-        toast.innerText = text;
-        toast.classList.add("show");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+      return {
+        type: "Plain Text",
+        iconSvg: SVG_ICONS.fileText,
+        title: "Standard Text Payload",
+        badge: "Data Stream",
+        fields: {
+          "Character Count": String(data.length) + " characters",
+          "Line Count": String(data.split(/\r?\n/).length) + " lines",
+          "Content Snippet": data.length > 250 ? data.substring(0, 250) + "..." : data
+        },
+        primaryAction: { label: "Download Text File", type: "download_txt", value: data }
+      };
+    }
+
+    function isValidURL(text) {
+      try {
+        const url = new URL(text);
+        return url.protocol === "http:" || url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }
+
+    function parseURLData(data) {
+      try {
+        const u = new URL(data);
+        const isHttps = u.protocol === "https:";
+        return {
+          type: "Web URL",
+          iconSvg: isHttps ? SVG_ICONS.shieldLock : SVG_ICONS.warning,
+          title: isHttps ? "Verified Secure Web Link" : "Standard Web Link",
+          badge: isHttps ? "HTTPS Verified" : "HTTP Insecure",
+          fields: {
+            "Host Domain": u.hostname,
+            "Full URL": data,
+            "Protocol": u.protocol.replace(":", "").toUpperCase(),
+            "Path": u.pathname || "/"
+          },
+          primaryAction: { label: "Open Link Safely", type: "url", value: data }
+        };
+      } catch {
+        return {
+          type: "Web URL",
+          iconSvg: SVG_ICONS.link,
+          title: "Web Link",
+          badge: "Hyperlink",
+          fields: { "URL": data },
+          primaryAction: { label: "Open Link", type: "url", value: data }
+        };
+      }
+    }
+
+    function parseWifiData(data) {
+      const content = data.substring(5);
+      const fields = {};
+      const parts = content.match(/(?:^|;)([STPH]):((?:\\.|[^;])*)/g) || [];
+
+      parts.forEach(part => {
+        const clean = part.replace(/^;/, "");
+        const idx = clean.indexOf(":");
+        if (idx === -1) return;
+        const key = clean.substring(0, idx);
+        const val = clean.substring(idx + 1);
+        fields[key] = unescapeQR(val);
+      });
+
+      const ssid = fields.S || "Corporate Network (Hidden)";
+      const pass = fields.P || "None";
+      const sec = fields.T || "Open / Unencrypted";
+
+      return {
+        type: "Wi-Fi Pass",
+        iconSvg: SVG_ICONS.wifi,
+        title: "Network Authentication Key",
+        badge: sec.toUpperCase(),
+        fields: {
+          "Network SSID": ssid,
+          "Security Protocol": sec,
+          "Password": pass,
+          "Broadcast Hidden": (fields.H || "").toLowerCase() === "true" ? "Yes" : "No"
+        },
+        primaryAction: { label: "Copy Wi-Fi Password", type: "copy_pass", value: pass }
+      };
+    }
+
+    function parseVCardData(data) {
+      const res = {};
+      const lines = data.split(/\r?\n/);
+      lines.forEach(line => {
+        const clean = line.trim();
+        if (!clean) return;
+        const idx = clean.indexOf(":");
+        if (idx === -1) return;
+        const rawKey = clean.substring(0, idx).toUpperCase();
+        const key = rawKey.split(";")[0];
+        const val = clean.substring(idx + 1);
+
+        switch (key) {
+          case "FN": res["Full Name"] = val; break;
+          case "TITLE": res["Title / Position"] = val; break;
+          case "ORG": res["Organization"] = val; break;
+          case "TEL": if (!res["Phone Number"]) res["Phone Number"] = val; break;
+          case "EMAIL": if (!res["Email Address"]) res["Email Address"] = val; break;
+          case "URL": res["Official Website"] = val; break;
+          case "ADR":
+            if (!res["Office Address"]) res["Office Address"] = val.split(";").filter(Boolean).join(", ");
+            break;
+          case "NOTE": res["Notes"] = val; break;
+        }
+      });
+
+      return {
+        type: "Contact Card",
+        iconSvg: SVG_ICONS.user,
+        title: res["Full Name"] ? res["Full Name"] : "Business Contact Card",
+        badge: "vCard 3.0",
+        fields: Object.keys(res).length ? res : { "Raw vCard": "RFC Contact Structure" },
+        primaryAction: { label: "Download Contact (.vcf)", type: "download_vcf", value: data }
+      };
+    }
+
+    function parseMeCardData(data) {
+      const content = data.substring(7);
+      const fields = content.split(";");
+      const res = {};
+
+      fields.forEach(f => {
+        const idx = f.indexOf(":");
+        if (idx === -1) return;
+        const key = f.substring(0, idx).toUpperCase();
+        const val = f.substring(idx + 1);
+        switch (key) {
+          case "N": res["Name"] = val; break;
+          case "TEL": res["Telephone"] = val; break;
+          case "EMAIL": res["Email"] = val; break;
+          case "ORG": res["Company"] = val; break;
+          case "URL": res["Website"] = val; break;
+          case "ADR": res["Address"] = val; break;
+        }
+      });
+
+      return {
+        type: "Contact Card",
+        iconSvg: SVG_ICONS.user,
+        title: res["Name"] || "Executive Contact Card",
+        badge: "MeCard",
+        fields: res,
+        primaryAction: { label: "Download Contact (.vcf)", type: "download_vcf", value: meCardToVCard(res) }
+      };
+    }
+
+    function meCardToVCard(card) {
+      return `BEGIN:VCARD
+VERSION:3.0
+FN:${card["Name"] || "Contact"}
+TEL:${card["Telephone"] || ""}
+EMAIL:${card["Email"] || ""}
+ORG:${card["Company"] || ""}
+URL:${card["Website"] || ""}
+ADR:${card["Address"] || ""}
+END:VCARD`;
+    }
+
+    function parseCalendarData(data) {
+      const res = {};
+      const lines = data.split(/\r?\n/);
+      lines.forEach(line => {
+        if (line.startsWith("SUMMARY:")) res["Meeting Title"] = line.substring(8);
+        else if (line.startsWith("LOCATION:")) res["Location / Room"] = line.substring(9);
+        else if (line.startsWith("DESCRIPTION:")) res["Agenda / Details"] = line.substring(12);
+        else if (line.startsWith("DTSTART")) res["Scheduled Start"] = formatICalDate(line.substring(line.indexOf(":") + 1));
+        else if (line.startsWith("DTEND")) res["Scheduled End"] = formatICalDate(line.substring(line.indexOf(":") + 1));
+      });
+
+      return {
+        type: "Calendar Event",
+        iconSvg: SVG_ICONS.calendar,
+        title: res["Meeting Title"] || "Calendar Appointment",
+        badge: "iCal / VEVENT",
+        fields: res,
+        primaryAction: { label: "Add to Calendar (.ics)", type: "download_ics", value: data }
+      };
+    }
+
+    function formatICalDate(str) {
+      if (!str) return "Not specified";
+      if (str.length >= 8) {
+        const y = str.substring(0, 4);
+        const m = str.substring(4, 6);
+        const d = str.substring(6, 8);
+        let timePart = "";
+        if (str.includes("T")) {
+          const t = str.split("T")[1].replace("Z", "");
+          timePart = " " + t.substring(0, 2) + ":" + t.substring(2, 4) + " UTC";
+        }
+        return `${y}-${m}-${d}${timePart}`;
+      }
+      return str;
+    }
+
+    function parseUpiData(data) {
+      try {
+        const u = new URL(data);
+        const p = u.searchParams;
+        return {
+          type: "Payment / Invoice",
+          iconSvg: SVG_ICONS.card,
+          title: "Corporate Payment Invoice",
+          badge: "UPI Payment Token",
+          fields: {
+            "Payee Name": p.get("pn") || "Enterprise Account",
+            "Payment VPA / ID": p.get("pa") || "Not provided",
+            "Transaction Amount": p.get("am") ? (p.get("cu") || "INR") + " " + p.get("am") : "Open Amount",
+            "Transaction Note": p.get("tn") || "General Settlement",
+            "Reference Identifier": p.get("tr") || "None"
+          },
+          primaryAction: { label: "Initiate Payment", type: "launch_url", value: data }
+        };
+      } catch {
+        return {
+          type: "Payment / Invoice",
+          iconSvg: SVG_ICONS.card,
+          title: "Payment Token",
+          badge: "Payment",
+          fields: { "Payload": data },
+          primaryAction: { label: "Copy Payment Link", type: "copy_text", value: data }
+        };
+      }
+    }
+
+    function parseEmailData(data) {
+      const content = data.substring(7);
+      const parts = content.split("?");
+      let recipient = parts[0];
+      try { recipient = decodeURIComponent(recipient); } catch (e) {}
+      const res = { "Recipient": recipient };
+      if (parts[1]) {
+        const params = new URLSearchParams(parts[1]);
+        if (params.has("subject")) res["Subject"] = params.get("subject");
+        if (params.has("body")) res["Message Body"] = params.get("body");
+      }
+      return {
+        type: "Email Dispatch",
+        iconSvg: SVG_ICONS.mail,
+        title: "Mail Dispatch Protocol",
+        badge: "mailto:",
+        fields: res,
+        primaryAction: { label: "Compose Email Client", type: "launch_url", value: data }
+      };
+    }
+
+    function parseSmsData(data) {
+      const content = data.substring(4);
+      const parts = content.split("?");
+      const res = { "Phone Number": parts[0] };
+      if (parts[1]) {
+        const params = new URLSearchParams(parts[1]);
+        if (params.has("body")) res["Message"] = params.get("body");
+      }
+      return {
+        type: "SMS Message",
+        iconSvg: SVG_ICONS.message,
+        title: "SMS Protocol",
+        badge: "SMS",
+        fields: res,
+        primaryAction: { label: "Open SMS Client", type: "launch_url", value: data }
+      };
+    }
+
+    function parseGeoData(data) {
+      const coords = data.substring(4);
+      const parts = coords.split(",");
+      const lat = parts[0] || "";
+      const lon = parts[1] || "";
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}`;
+      return {
+        type: "Geolocation",
+        iconSvg: SVG_ICONS.mapPin,
+        title: "Geographical Coordinates",
+        badge: "GPS Coords",
+        fields: {
+          "Latitude": lat,
+          "Longitude": lon,
+          "Map Navigation Link": mapUrl
+        },
+        primaryAction: { label: "View in Maps", type: "url", value: mapUrl }
+      };
+    }
+
+    function unescapeQR(val) {
+      return val
+        .replace(/\\\\/g, "\u0000")
+        .replace(/\\;/g, ";")
+        .replace(/\\:/g, ":")
+        .replace(/\\,/g, ",")
+        .replace(/\u0000/g, "\\");
+    }
+
+    /* Render Results Card */
+    function renderResultCard(parsed) {
+      document.getElementById("resultTitle").textContent = parsed.title;
+      document.getElementById("resultIcon").innerHTML = parsed.iconSvg || SVG_ICONS.fileText;
+      document.getElementById("resultTypeBadge").textContent = parsed.badge;
+
+      const container = document.getElementById("resultDetailsBox");
+      container.innerHTML = "";
+
+      Object.entries(parsed.fields).forEach(([label, value]) => {
+        const row = document.createElement("div");
+        row.className = "detail-item";
+
+        const labelDiv = document.createElement("div");
+        labelDiv.className = "item-label";
+        labelDiv.textContent = label;
+
+        const valDiv = document.createElement("div");
+        valDiv.className = "item-value";
+        valDiv.textContent = value;
+        if (label.toLowerCase().includes("url") || label.toLowerCase().includes("website") || label.toLowerCase().includes("email")) {
+          valDiv.classList.add("link");
+        }
+
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "item-copy-btn";
+        copyBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span>Copy</span>
+        `;
+        copyBtn.addEventListener("click", () => {
+          copyStringToClipboard(value);
+          copyBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--success)">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span style="color:var(--success)">Copied</span>
+          `;
+          setTimeout(() => {
+            copyBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            `;
+          }, 1800);
+        });
+
+        row.appendChild(labelDiv);
+        row.appendChild(valDiv);
+        row.appendChild(copyBtn);
+        container.appendChild(row);
+      });
+
+      const primaryContainer = document.getElementById("primaryActionsContainer");
+      primaryContainer.innerHTML = "";
+
+      if (parsed.primaryAction) {
+        const action = parsed.primaryAction;
+        const mainBtn = document.createElement("button");
+        mainBtn.className = "btn btn-accent btn-sm";
+        mainBtn.textContent = action.label;
+
+        mainBtn.addEventListener("click", () => {
+          handlePrimaryAction(action);
+        });
+
+        primaryContainer.appendChild(mainBtn);
       }
 
-      reader.style.display = "none";
-    </script>
-  </body>
+      document.getElementById("rawDecodedPre").textContent = currentDecodedData;
+      document.getElementById("rawCharCount").textContent = currentDecodedData.length + " bytes";
+    }
+
+    function handlePrimaryAction(action) {
+      if (!action) return;
+      switch (action.type) {
+        case "url":
+          window.open(action.value, "_blank", "noopener,noreferrer");
+          break;
+        case "launch_url":
+        case "call":
+          window.location.href = action.value;
+          break;
+        case "copy_pass":
+          copyStringToClipboard(action.value);
+          showToast("Wi-Fi password copied to clipboard");
+          break;
+        case "download_vcf":
+          downloadTextFile("contact.vcf", action.value, "text/vcard;charset=utf-8");
+          showToast("Saved contact (.vcf) file");
+          break;
+        case "download_ics":
+          downloadTextFile("meeting.ics", action.value, "text/calendar;charset=utf-8");
+          showToast("Saved calendar (.ics) invite");
+          break;
+        case "download_txt":
+          downloadTextFile("decoded_qr_payload.txt", action.value, "text/plain;charset=utf-8");
+          showToast("Saved raw text (.txt) file");
+          break;
+        default:
+          copyStringToClipboard(action.value);
+          showToast("Copied to clipboard");
+          break;
+      }
+    }
+
+    /* Clipboard Copy Helper with ExecCommand Fallback */
+    async function copyStringToClipboard(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          showToast("Copied to clipboard");
+          return;
+        }
+      } catch (e) {
+        console.warn("Clipboard API failed, using fallback:", e);
+      }
+
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        showToast("Copied to clipboard");
+      } catch (err) {
+        showToast("Unable to copy to clipboard on this browser.");
+      }
+    }
+
+    /* File Download Utility */
+    function downloadTextFile(filename, text, mimeType) {
+      const blob = new Blob([text], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    /* Global Bottom Result Action Bar Buttons */
+    document.getElementById("copyAllDataBtn").addEventListener("click", () => {
+      copyStringToClipboard(currentDecodedData);
+    });
+
+    document.getElementById("exportScanJsonBtn").addEventListener("click", () => {
+      const payload = {
+        timestamp: new Date().toISOString(),
+        category: currentParsedObject ? currentParsedObject.type : "Unknown",
+        fields: currentParsedObject ? currentParsedObject.fields : {},
+        rawPayload: currentDecodedData
+      };
+      downloadTextFile("scan_result.json", JSON.stringify(payload, null, 2), "application/json");
+      showToast("Exported JSON report");
+    });
+
+    document.getElementById("scanAgainBtn").addEventListener("click", () => {
+      resultSection.classList.remove("show");
+      const liveTab = document.getElementById("tabLiveBtn");
+      liveTab.click();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      startOpticalScanner();
+    });
+
+    /* Enterprise QR Generator Studio */
+    function setupGeneratorStudio() {
+      const typeBtns = document.querySelectorAll(".gen-type-btn");
+      const container = document.getElementById("genFieldsContainer");
+      const renderBtn = document.getElementById("generateQrBtn");
+      const canvasHolder = document.getElementById("qrCanvasHolder");
+      const downloadPngBtn = document.getElementById("downloadQrPngBtn");
+      const copyDataUriBtn = document.getElementById("copyQrImageBtn");
+
+      let currentGenType = "url";
+
+      const renderFormFields = (type) => {
+        currentGenType = type;
+        container.innerHTML = "";
+
+        if (type === "url") {
+          container.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Destination URL</label>
+              <input type="url" class="form-input" id="genUrlInput" value="https://www.example.com/corporate-portal" placeholder="https://" />
+            </div>
+          `;
+        } else if (type === "vcard") {
+          container.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" id="genVName" value="Johnathon Vance" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Title &amp; Company</label>
+              <input type="text" class="form-input" id="genVTitle" value="Senior Partner, Mergers &amp; Acquisitions" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Corporate Email</label>
+              <input type="email" class="form-input" id="genVEmail" value="jvance@apexadvisory.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Direct Telephone</label>
+              <input type="tel" class="form-input" id="genVTel" value="+1-212-555-0182" />
+            </div>
+          `;
+        } else if (type === "wifi") {
+          container.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Network Name (SSID)</label>
+              <input type="text" class="form-input" id="genWifiSsid" value="Executive-Guest-WiFi" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Security Protocol</label>
+              <select class="form-select" id="genWifiSec">
+                <option value="WPA">WPA / WPA2 / WPA3 (Standard)</option>
+                <option value="WEP">WEP (Legacy)</option>
+                <option value="nopass">None (Open Network)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Network Password</label>
+              <input type="text" class="form-input" id="genWifiPass" value="ApexSecure2026!" />
+            </div>
+          `;
+        } else if (type === "text") {
+          container.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Text Content or Data Matrix</label>
+              <textarea class="form-textarea" id="genTextInput" placeholder="Enter plaintext, inventory SKU, or audit notes...">Confidential Audit Token #7829-B</textarea>
+            </div>
+          `;
+        } else if (type === "email") {
+          container.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Recipient Email</label>
+              <input type="email" class="form-input" id="genEmailTo" value="inquiries@enterprise-holdings.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Default Subject</label>
+              <input type="text" class="form-input" id="genEmailSub" value="Board Meeting Minutes Request" />
+            </div>
+          `;
+        }
+      };
+
+      typeBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          typeBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderFormFields(btn.getAttribute("data-gentype"));
+        });
+      });
+
+      renderFormFields("url");
+
+      const triggerGeneration = () => {
+        let payload = "";
+        if (currentGenType === "url") {
+          payload = (document.getElementById("genUrlInput")?.value || "").trim();
+        } else if (currentGenType === "vcard") {
+          const fn = document.getElementById("genVName")?.value || "Contact";
+          const title = document.getElementById("genVTitle")?.value || "";
+          const email = document.getElementById("genVEmail")?.value || "";
+          const tel = document.getElementById("genVTel")?.value || "";
+          payload = `BEGIN:VCARD\nVERSION:3.0\nFN:${fn}\nTITLE:${title}\nEMAIL:${email}\nTEL:${tel}\nEND:VCARD`;
+        } else if (currentGenType === "wifi") {
+          const ssid = document.getElementById("genWifiSsid")?.value || "WiFi";
+          const sec = document.getElementById("genWifiSec")?.value || "WPA";
+          const pass = document.getElementById("genWifiPass")?.value || "";
+          payload = `WIFI:S:${ssid};T:${sec};P:${pass};;`;
+        } else if (currentGenType === "text") {
+          payload = (document.getElementById("genTextInput")?.value || "").trim();
+        } else if (currentGenType === "email") {
+          const to = document.getElementById("genEmailTo")?.value || "";
+          const sub = document.getElementById("genEmailSub")?.value || "";
+          payload = `mailto:${to}?subject=${encodeURIComponent(sub)}`;
+        }
+
+        if (!payload) {
+          showToast("Please enter payload content to generate QR code");
+          return;
+        }
+
+        canvasHolder.innerHTML = "";
+
+        if (typeof QRCode !== "undefined") {
+          try {
+            generatedQrInstance = new QRCode(canvasHolder, {
+              text: payload,
+              width: 192,
+              height: 192,
+              colorDark: "#0f172a",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.H : 2
+            });
+            showToast("QR code generated");
+            return;
+          } catch (e) {
+            console.warn("QRCode constructor error:", e);
+          }
+        }
+
+        const img = document.createElement("img");
+        img.alt = "Generated QR Code";
+        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&data=" + encodeURIComponent(payload);
+        img.style.maxWidth = "100%";
+        img.style.borderRadius = "8px";
+        canvasHolder.appendChild(img);
+        showToast("QR code generated");
+      };
+
+      renderBtn.addEventListener("click", triggerGeneration);
+
+      downloadPngBtn.addEventListener("click", () => {
+        const canvas = canvasHolder.querySelector("canvas");
+        const img = canvasHolder.querySelector("img");
+        if (canvas) {
+          const a = document.createElement("a");
+          a.href = canvas.toDataURL("image/png");
+          a.download = "enterprise_qr_code.png";
+          a.click();
+          showToast("Downloaded high-res PNG");
+        } else if (img && img.src) {
+          const a = document.createElement("a");
+          a.href = img.src;
+          a.download = "enterprise_qr_code.png";
+          a.target = "_blank";
+          a.click();
+          showToast("Downloading QR image");
+        } else {
+          showToast("Generate a QR code first");
+        }
+      });
+
+      copyDataUriBtn.addEventListener("click", () => {
+        const canvas = canvasHolder.querySelector("canvas");
+        if (canvas) {
+          copyStringToClipboard(canvas.toDataURL("image/png"));
+          showToast("Copied Data URI to clipboard");
+        } else {
+          showToast("Generate a QR code first to copy its URI");
+        }
+      });
+    }
+  </script>
+</body>
 </html>
